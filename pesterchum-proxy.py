@@ -5,12 +5,12 @@ import socket
 import select
 import re
 import threading
-import argparse
+import optparse
 import sys
 
-parser = argparse.ArgumentParser()
-parser.add_argument('-p', '--port', dest='port', default=7000, type=int, help="set listener port")
-args = parser.parse_args()
+parser = optparse.OptionParser()
+parser.add_option('-p', '--port', dest='port', default=7000, type=int, help="set listener port")
+(opts, args) = parser.parse_args()
 
 log = logging.getLogger("pesterproxy")
 log.setLevel(logging.DEBUG)
@@ -29,7 +29,7 @@ log.addHandler(fh)
 log.addHandler(ch)
 
 listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-listener.bind(('', args.port))
+listener.bind(('', opts.port))
 listener.listen(10)
 threads = []
 stopped = False
