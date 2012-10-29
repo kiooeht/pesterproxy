@@ -9,7 +9,7 @@ import argparse
 import sys
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-p', '--port', dest='port', default=7000, type=int)
+parser.add_argument('-p', '--port', dest='port', default=7000, type=int, help="set listener port")
 args = parser.parse_args()
 
 log = logging.getLogger("pesterproxy")
