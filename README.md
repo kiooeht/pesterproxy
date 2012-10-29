@@ -15,4 +15,12 @@ becomes
 EB: Hello world!
 ```
 
-By default, PesterProxy listens on port 7000 for new connections.
+By default, PesterProxy listens on port 7000 for new connections, this can be changed using the cli arguments.
+
+```
+usage: pesterchum-proxy.py [-h] [-p PORT]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -p PORT, --port PORT  set listener port
+```
