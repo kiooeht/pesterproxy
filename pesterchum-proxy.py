@@ -51,7 +51,7 @@ def handle_client(client, address):
           txt = server.recv(1024).decode('utf-8') # receive up to 1K bytes
           log.debug("Incoming: %s", txt.encode('ascii', 'replace'))
           target = client
-          txt = re.sub("</?c(=.*?)?>", "", txt)
+          txt = re.sub(r"(?i)</?[ibu]>", "", re.sub(r"(?i)</?c(=.*?)?>", "", txt))
           if "PESTERCHUM:" in txt:
             continue
         if not txt or stopped:
