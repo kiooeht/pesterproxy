@@ -59,8 +59,10 @@ def handle_client(client, address):
           log.debug("Incoming: %s", txt.encode('ascii', 'replace'))
           target = client
           txt = re.sub(r"(?i)</?[ibu]>", "", re.sub(r"(?i)</?c(=.*?)?>", "", txt))
-          if "PESTERCHUM:" in txt:
-            continue
+          txt = [x for x in txt.split("\r\n") if "PESTERCHUM:" not in x]
+          txt = "\r\n".join(txt)
+          if txt == '':
+              continue
         if not txt or stopped:
           client.close()
           server.close()
