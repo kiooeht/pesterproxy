@@ -9,17 +9,19 @@ import optparse
 import sys
 
 parser = optparse.OptionParser()
-parser.add_option('-p', '--port', dest='port', default=7000, type=int, help="set listener port")
+parser.add_option('-p', '--port', dest='port', default=7000, type=int, help='set listener port')
+parser.add_option('-v', '--verbose', action='store_true', dest='verbose', default=False, help='print more debug information')
 (opts, args) = parser.parse_args()
 
 log = logging.getLogger("pesterproxy")
-log.setLevel(logging.DEBUG)
+if opts.verbose:
+    log.setLevel(logging.DEBUG)
+else:
+    log.setLevel(logging.INFO)
 # create file handler which logs even debug messages
 fh = logging.FileHandler('pesterproxy.log')
-fh.setLevel(logging.INFO)
 # create console handler with a higher log level
 ch = logging.StreamHandler()
-ch.setLevel(logging.INFO)
 # create formatter and add it to the handlers
 formatter = logging.Formatter('%(asctime)s [%(levelname)s] --> %(message)s')
 fh.setFormatter(formatter)
