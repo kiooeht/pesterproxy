@@ -23,4 +23,5 @@ Usage: pesterchum-proxy.py [options]
 Options:
   -h, --help            show this help message and exit
   -p PORT, --port=PORT  set listener port
+  -v, --verbose         print more debug information
 ```
