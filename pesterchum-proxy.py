@@ -36,6 +36,78 @@ listener.listen(10)
 threads = []
 stopped = False
 
+codes = [
+    [255,255,255],
+    [0,0,0],
+    [0,0,127],
+    [0,147,0],
+    [255,0,0],
+    [127,0,0],
+    [156,0,156],
+    [252,127,0],
+    [255,255,0],
+    [0,252,0],
+    [0,147,147],
+    [0,255,255],
+    [0,0,252],
+    [255,0,255],
+    [127,127,127],
+    [210,210,210]
+]
+
+formats = {
+  "b": "\u0002",
+  "u": "\u001F",
+  "i": "\u0016"
+}
+
+def fudge_it(rgb):
+    diff = 256*3
+    diff_i = None
+    for i,code in enumerate(codes):
+        d = sum([abs(code[x] - rgb[x]) for x in range(3)])
+        if d <= diff:
+            diff = d
+            diff_i = i
+    return codes[diff_i]
+
+colour_stack = []
+format_stack = []
+
+def colour_to_irc(match):
+  rgb = match.group(1).lower()
+  rgb = rgb[rgb.find('=')+1:]
+  if not rgb or rgb == 'c':
+    if colour_stack:
+      colour_stack.pop()
+    code = "\u000F"
+    for f in format_stack:
+      code += f
+    if len(colour_stack) > 0:
+      code += colour_stack[-1]
+    return code
+  rgb = [int(x) for x in rgb.split(",")]
+  code = "\u0003" + str(codes.index(fudge_it(rgb)))
+  colour_stack.append(code)
+  return code
+
+def format_to_irc(match):
+  type = match.group(1).lower()
+  if type[0] == '/':
+    if format_stack:
+      return format_stack.pop()
+    else:
+      return ""
+  format_stack.append(formats[type])
+  return formats[type]
+
+def convert_to_irc(match):
+  type = match.group(1).lower()
+  if type[0] == 'c':
+    return colour_to_irc(match)
+  else:
+   return format_to_irc(match)
+
 def handle_client(client, address):
   server = None
   try:
@@ -60,7 +132,9 @@ def handle_client(client, address):
           txt = server.recv(1024).decode('utf-8') # receive up to 1K bytes
           log.debug("Incoming: %s", txt.encode('ascii', 'replace'))
           target = client
-          txt = re.sub(r"(?i)</?[ibu]>", "", re.sub(r"(?i)</?c(=.*?)?>", "", txt))
+          txt = re.sub(r"(?i)</?([bui]|c=?.*?)>", convert_to_irc, txt)
+          colour_stack[:] = []
+          format_stack[:] = []
           txt = [x for x in txt.split("\r\n") if "PESTERCHUM:" not in x]
           txt = "\r\n".join(txt)
           if txt == '':
@@ -106,3 +180,4 @@ finally:
   listener.shutdown(socket.SHUT_RDWR)
   listener.close()
 print("Goodbye")
+
