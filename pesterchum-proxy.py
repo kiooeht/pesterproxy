@@ -5,6 +5,7 @@ import socket
 import select
 import re
 import threading
+import struct
 import optparse
 import sys
 
@@ -55,6 +56,19 @@ codes = [
     [210,210,210]
 ]
 
+colours = {
+  "black":  (0,0,0),
+  "white":  (255,255,255),
+  "red":    (255,0,0),
+  "green":  (0,255,0),
+  "blue":   (0,0,255),
+  "yellow": (255,255,0),
+  "purple": (128,0,128),
+  "violet": (238,130,238),
+  "orange": (255,165,0),
+  "cyan":   (0,255,255)
+}
+
 formats = {
   "b": "\u0002",
   "u": "\u001F",
@@ -74,6 +88,9 @@ def fudge_it(rgb):
 colour_stack = []
 format_stack = []
 
+def hex_to_rgb(hex):
+    return struct.unpack('BBB', hex.decode('hex'))
+
 def colour_to_irc(match):
   rgb = match.group(1).lower()
   rgb = rgb[rgb.find('=')+1:]
@@ -86,7 +103,16 @@ def colour_to_irc(match):
     if len(colour_stack) > 0:
       code += colour_stack[-1]
     return code
-  rgb = [int(x) for x in rgb.split(",")]
+  if rgb[0] == '#':
+    rgb = hex_to_rgb(rgb[1:])
+  elif rgb in colours:
+    rgb = colours[rgb]
+  else:
+    try:
+      rgb = [int(x) for x in rgb.split(",")]
+    except:
+      colour_stack.append("")
+      return ""
   code = "\u0003" + str(codes.index(fudge_it(rgb)))
   colour_stack.append(code)
   return code
