@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import logging
+from logging.handlers import RotatingFileHandler
 import traceback
 import socket
 import select
@@ -20,7 +21,7 @@ if opts.verbose:
 else:
     log.setLevel(logging.INFO)
 # create file handler which logs even debug messages
-fh = logging.FileHandler('pesterproxy.log')
+fh = RotatingFileHandler('pesterproxy.log', maxBytes=1024*20, backupCount=4)
 # create console handler with a higher log level
 ch = logging.StreamHandler()
 # create formatter and add it to the handlers
